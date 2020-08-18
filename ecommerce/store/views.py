@@ -61,6 +61,8 @@ def detail_product(request, id):
 def favorite(request, pk):
     """
     """
+    print(request.user)
+    print(request.user.id)
     favorite_annonce = get_object_or_404(Product, id=pk)
     print(f'favorite_annonce: {favorite_annonce}' )
     # # Verifier si l'object existe dans la BD 
