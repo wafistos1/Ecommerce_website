@@ -1,0 +1,41 @@
+{% extends 'store/home.html' %}
+
+
+
+{% block Categories-Section %}
+{% endblock Categories-Section %}
+
+{% block Product-Section %}
+{% endblock Product-Section %}
+
+{% block Banner-Section %}
+{% endblock Banner-Section %}
+
+{% block Trend-Section %}
+<div class="col-lg-6 col-md-6">
+    <div class="contact__content">
+<div class="contact__form">
+    <h5>SEND MESSAGE</h5>
+    <form method="POST" >
+        {% csrf_token %}
+        {{ form }}
+        
+        <button type="submit" class="site-btn"> Login</button>
+    </form>
+</div>
+</div>
+</div>
+
+{% endblock Trend-Section %}
+
+{% block Discount-Section %}
+{% endblock Discount-Section %}
+
+
+{% block Services-Section %}
+{% endblock Services-Section %}
+
+
+{% block Instagram-Section %}
+{% endblock Instagram-Section %}
+
