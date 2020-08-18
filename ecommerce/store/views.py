@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from store.models import Customer, OrderItem, Order, Product, ShippingAddress
-# Create your views here.
-
+from store.models import OrderItem, Order, Product, ShippingAddress
+from django.contrib.auth.decorators import login_required
+from register.models import Customer
 
 def home(request):
     products = Product.objects.all()
@@ -12,7 +12,7 @@ def home(request):
     }
     return render(request, 'store/home.html', context)
 
-
+@login_required(login_url='login')
 def cart(request):
     products = Product.objects.all()
     context = {
@@ -20,7 +20,7 @@ def cart(request):
     }
     return render(request, 'store/cart.html', context)
 
-
+@login_required(login_url='login')
 def checkout(request):
     if request.user.is_authenticated:
         print('je suis dans le if user')
@@ -58,6 +58,7 @@ def detail_product(request, id):
     return render(request, 'store/detail.html', context)
 
 
+@login_required(login_url='login')
 def favorite(request, pk):
     """
     """
@@ -69,9 +70,9 @@ def favorite(request, pk):
     # print('je suis dans favorite views')
     if favorite_annonce.favorite.filter(id=request.user.id).exists():
         print('je suis dans favorite qui vaux True')
-        favorite_annonce.favorite.remove(request.user.id)
+        favorite_annonce.favorite.remove(request.user)
     else:
         print('je suis dans favorite qui vaux False')
-        favorite_annonce.favorite.add(request.user.id)
+        favorite_annonce.favorite.add(request.user)
         print(f' Etat du favorite {favorite_annonce.favorite}' )
     return HttpResponseRedirect(favorite_annonce.get_absolute_url())
