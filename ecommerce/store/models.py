@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from register.models import Customer 
+from register.models import Customer
 # Create your models here.
 
 
@@ -20,7 +20,8 @@ class Product(models.Model):
     short_description = models.TextField(default='', null=True, blank=True)
     nb_products = models.PositiveIntegerField(default=0)
     label = models.CharField(max_length=200, null=True, blank=True, choices=LABEL_CHOICES)
-    favorite = models.ManyToManyField(Customer, related_name='favorite', blank=True)
+    favorite = models.ManyToManyField(User, related_name='favorite', blank=True)
+    is_favorite = models.BooleanField(default=False, null=True, blank=True)
 
 
     def get_image_url(self):
@@ -33,9 +34,14 @@ class Product(models.Model):
     def get_absolute_url(self):  # new
         return reverse('store_detail', args=[str(self.id)])
 
+    def get_add_to_cart(self):
+        return reverse('store_cart', args=[str(self.id)])
+
+
     def __str__(self):
         return self.name
 
+    
     # def get_favorite_url(self):  # new
     #     return reverse('favorite_annonce', args=[str(self.id)])
     
@@ -45,36 +51,24 @@ class Product(models.Model):
     # def get_delete_url(self):  # new
     #     return reverse('annonce_delete', args=[str(self.id)])
 
+class OrderItem(models.Model):
+    """
+    """
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, related_name="order_user")
+    quantity = models.IntegerField(default=0, null=True, blank=True)
+    date_added = models.DateTimeField(auto_now_add=True)
 
-class Order(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
-    date_ordered = models.DateTimeField(auto_now_add=True)
-    complete = models.BooleanField(default=False)
-    transaction_id = models.CharField(max_length=100, null=True)
-
-    @property
     def get_cart_total(self):
         orderitems = self.orderitem.all()
         total = sum([item.get_total for item in orderitems])
         return total
 
-    @property
     def get_cart_items(self):
         orderitems = self.orderitem.all()
         total = sum([item.quantity for item in orderitems])
         return total
 
-    def __str__(self):
-        return str(self.id)
-
-
-class OrderItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, related_name="orderitem")
-    quantity = models.IntegerField(default=0, null=True, blank=True)
-    date_added = models.DateTimeField(auto_now_add=True)
-
-    @property
     def get_total(self):
         total = self.product.price * self.quantity
         return total
@@ -82,6 +76,20 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.id}- {self.product.name}- owner:{self.order.customer.name}"
 
+class Order(models.Model):
+    """
+    """
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
+    orderItem = models.ManyToManyField(OrderItem)
+    start_date = models.DateTimeField(auto_now_add=True)
+    ordered_date = models.DateTimeField()
+    ordered = models.BooleanField(default=False)
+    shipping_address = models.ForeignKey('ShippingAddress', related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
+
+    
+
+    def __str__(self):
+        return str(self.id)
 
 class ShippingAddress(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)

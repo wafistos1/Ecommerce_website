@@ -251,3 +251,5 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/django,pycharm
 ecommerce/settings/production.py
+store/migrations/*
+register/migrations/*

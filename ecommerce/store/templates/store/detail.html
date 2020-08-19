@@ -54,12 +54,12 @@
                                 <input type="text" value="1">
                             </div>
                         </div>
-                        <a href="#" class="cart-btn"><span class="icon_bag_alt"></span> Add to cart</a>
-                        <ul>
-                            {% if is_favorite %}
-                            <li><a href="{% url 'favorite_annonce' pk=product.id %}"><span class="icon_heart"></span></a></li>
+                        <a href="{{ product.get_add_to_cart }}" class="cart-btn"><span class="icon_bag_alt"></span> Add to cart</a>
+                        <ul class="favorite_heart">
+                            {% if product.is_favorite %}
+                            <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon" name='1' "><span class="icon_heart" ></span></a></li>
                             {% else %}
-                            <li><a href="{% url 'favorite_annonce' pk=product.id %}"><span class="icon_heart_alt"></span></a></li>
+                            <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon" name='2' ><span class="icon_heart_alt"></span></a></li>
                             {% endif %}
                             <li><a href="#"><span class="icon_adjust-horiz"></span></a></li>
                         </ul>

@@ -4,6 +4,9 @@ from django.shortcuts import get_object_or_404
 from store.models import OrderItem, Order, Product, ShippingAddress
 from django.contrib.auth.decorators import login_required
 from register.models import Customer
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.http import JsonResponse, HttpResponse
 
 def home(request):
     products = Product.objects.all()
@@ -13,10 +16,15 @@ def home(request):
     return render(request, 'store/home.html', context)
 
 @login_required(login_url='login')
-def cart(request):
-    products = Product.objects.all()
+def add_to_cart(request, id):
+    product = get_object_or_404(Product, id=id)
+    order_item, created = OrderItem.objects.get_or_create(product=product, owner=request.user.customer)
+    order_item.quantity += 1
+    order_item.save()
+    product_items_cart = OrderItem.objects.filter(owner=request.user.customer)
+
     context = {
-        'products': products
+        'products': product_items_cart
     }
     return render(request, 'store/cart.html', context)
 
@@ -42,37 +50,54 @@ def checkout(request):
 
 
 def detail_product(request, id):
-    product = get_object_or_404(Product, id=id)
-    is_favorite = False
+    """
+    """
+    product = None
+    if id:
+        product = get_object_or_404(Product, id=id)
+    
     if product.favorite.filter(id=request.user.id).exists():
-        is_favorite = True
+        product.is_favorite = True
+        product.save()
     else:
         print('favorite is now False')
 
 
     context = {
-        'is_favorite': is_favorite,
+        
         'product': product
 
     }
     return render(request, 'store/detail.html', context)
 
-
+@csrf_exempt
 @login_required(login_url='login')
 def favorite(request, pk):
     """
     """
-    print(request.user)
-    print(request.user.id)
-    favorite_annonce = get_object_or_404(Product, id=pk)
+
+    if request.method == "POST":
+        val = request.POST.get('val')
+        print(val)
+    favorite_annonce = None
+    if pk:
+        favorite_annonce = get_object_or_404(Product, id=pk)
     print(f'favorite_annonce: {favorite_annonce}' )
     # # Verifier si l'object existe dans la BD 
     # print('je suis dans favorite views')
     if favorite_annonce.favorite.filter(id=request.user.id).exists():
-        print('je suis dans favorite qui vaux True')
+        
         favorite_annonce.favorite.remove(request.user)
+        favorite_annonce.is_favorite = False
+        favorite_annonce.save()
     else:
-        print('je suis dans favorite qui vaux False')
+        
         favorite_annonce.favorite.add(request.user)
+        favorite_annonce.is_favorite = True
+        favorite_annonce.save()
         print(f' Etat du favorite {favorite_annonce.favorite}' )
-    return HttpResponseRedirect(favorite_annonce.get_absolute_url())
+    context = {
+            'etat': favorite_annonce.is_favorite,
+        }
+    dump = json.dumps(context)
+    return HttpResponse(dump, content_type='applicaion/json')

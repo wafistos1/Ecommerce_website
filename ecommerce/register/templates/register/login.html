@@ -12,20 +12,26 @@
 {% endblock Banner-Section %}
 
 {% block Trend-Section %}
-<div class="col-lg-6 col-md-6">
-    <div class="contact__content">
-<div class="contact__form">
-    <h5>SEND MESSAGE</h5>
-    <form method="POST" >
-        {% csrf_token %}
-        {{ form }}
-        
-        <button type="submit" class="site-btn"> Login</button>
-    </form>
-</div>
-</div>
-</div>
+<div class="container">
+<section>
+    <br>
+    <br>
+    
+    <div class="col-lg-6 col-md-6">
+        <div class="contact__content">
+            <div class="contact__form">
+                <h5>login</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form }}
 
+                    <button type="submit" class="site-btn"> Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</div>
 {% endblock Trend-Section %}
 
 {% block Discount-Section %}
@@ -38,4 +44,3 @@
 
 {% block Instagram-Section %}
 {% endblock Instagram-Section %}
-
