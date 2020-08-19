@@ -85,14 +85,14 @@ def favorite(request, pk):
     print(f'favorite_annonce: {favorite_annonce}' )
     # # Verifier si l'object existe dans la BD 
     # print('je suis dans favorite views')
-    if favorite_annonce.favorite.filter(id=request.user.id).exists():
+    if favorite_annonce.favorite.filter(id=request.user.customer.id).exists():
         
-        favorite_annonce.favorite.remove(request.user)
+        favorite_annonce.favorite.remove(request.user.customer.id)
         favorite_annonce.is_favorite = False
         favorite_annonce.save()
     else:
         
-        favorite_annonce.favorite.add(request.user)
+        favorite_annonce.favorite.add(request.user.customer.id)
         favorite_annonce.is_favorite = True
         favorite_annonce.save()
         print(f' Etat du favorite {favorite_annonce.favorite}' )
