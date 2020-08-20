@@ -1,45 +1,53 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
-from register.models import Customer
+from register.models import Profil
+import uuid
 # Create your models here.
+CATEGORY_CHOICES = (
+    ('S', 'Shirt'),
+    ('SW', 'Sport wear'),
+    ('OW', 'Outwear')
+)
+
+LABEL_CHOICES = (
+    ('P', 'primary'),
+    ('S', 'secondary'),
+    ('D', 'danger')
+)
+
+ADDRESS_CHOICES = (
+    ('B', 'Billing'),
+    ('S', 'Shipping'),
+)
 
 
-
-class Product(models.Model):
-    OUT_OF_STOK = 'OUT OF STOK'
-    NEW = 'NEW'
-    LABEL_CHOICES = [
-        (OUT_OF_STOK, 'OUT OF STOK'),
-        (NEW, 'NEW'),
-        ]
-    name = models.CharField(max_length=200)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    digital = models.BooleanField(default=False, null=True, blank=True)
-    description = models.TextField(default='', null=True, blank=True)
-    short_description = models.TextField(default='', null=True, blank=True)
-    nb_products = models.PositiveIntegerField(default=0)
-    label = models.CharField(max_length=200, null=True, blank=True, choices=LABEL_CHOICES)
-    favorite = models.ManyToManyField(User, related_name='favorite', blank=True)
+class Item(models.Model):
+    """
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=100)
+    price = models.FloatField()
+    discount_price = models.FloatField(blank=True, null=True)
+    category = models.CharField(choices=CATEGORY_CHOICES, max_length=2)
+    label = models.CharField(choices=LABEL_CHOICES, max_length=1)
+    description = models.TextField(null=True, blank=True)
+    favorite = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite', blank=True)
     is_favorite = models.BooleanField(default=False, null=True, blank=True)
 
-
-    def get_image_url(self):
-        try:
-            url = self.image.url
-        except:
-            url = ''
-        return url
- 
-    def get_absolute_url(self):  # new
-        return reverse('store_detail', args=[str(self.id)])
-
-    def get_add_to_cart(self):
-        return reverse('store_cart', args=[str(self.id)])
-
-
     def __str__(self):
-        return self.name
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse("store_detail", args=[str(self.id)])
+
+    def get_add_to_cart_url(self):
+        return reverse("add_to_cart", args=[str(self.id)])
+
+    # def get_remove_from_cart_url(self):
+    #     return reverse("core:remove-from-cart", args=[str(self.id)])
+
 
     
     # def get_favorite_url(self):  # new
@@ -54,45 +62,73 @@ class Product(models.Model):
 class OrderItem(models.Model):
     """
     """
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    owner = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, related_name="order_user")
-    quantity = models.IntegerField(default=0, null=True, blank=True)
-    date_added = models.DateTimeField(auto_now_add=True)
-
-    def get_cart_total(self):
-        orderitems = self.orderitem.all()
-        total = sum([item.get_total for item in orderitems])
-        return total
-
-    def get_cart_items(self):
-        orderitems = self.orderitem.all()
-        total = sum([item.quantity for item in orderitems])
-        return total
-
-    def get_total(self):
-        total = self.product.price * self.quantity
-        return total
+    user = models.ForeignKey(Profil,  on_delete=models.CASCADE)
+    ordered = models.BooleanField(default=False)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
 
     def __str__(self):
-        return f"{self.id}- {self.product.name}- owner:{self.order.customer.name}"
+        return f"{self.quantity} of {self.item.title}"
+
+    def get_total_item_price(self):
+        return self.quantity * self.item.price
+
+    def get_total_discount_item_price(self):
+        return self.quantity * self.item.discount_price
+
+    def get_amount_saved(self):
+        return self.get_total_item_price() - self.get_total_discount_item_price()
+
+    def get_final_price(self):
+        if self.item.discount_price:
+            return self.get_total_discount_item_price()
+        return self.get_total_item_price()
+
 
 class Order(models.Model):
-    """
-    """
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
-    orderItem = models.ManyToManyField(OrderItem)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ref_code = models.CharField(max_length=20, blank=True, null=True)
+    items = models.ManyToManyField(OrderItem)
     start_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField()
     ordered = models.BooleanField(default=False)
     shipping_address = models.ForeignKey('ShippingAddress', related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
+    billing_address = models.ForeignKey('ShippingAddress', related_name='billing_address', on_delete=models.SET_NULL, blank=True, null=True)
+    # payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, blank=True, null=True)
+    # coupon = models.ForeignKey('Coupon', on_delete=models.SET_NULL, blank=True, null=True)
+    being_delivered = models.BooleanField(default=False)
+    received = models.BooleanField(default=False)
+    refund_requested = models.BooleanField(default=False)
+    refund_granted = models.BooleanField(default=False)
 
+    '''
+    1. Item added to cart
+    2. Adding a billing address
+    (Failed checkout)
+    3. Payment
+    (Preprocessing, processing, packaging etc.)
+    4. Being delivered
+    5. Received
+    6. Refunds
+    '''
+
+    def __str__(self):
+        return self.user.username
+
+    def get_total(self):
+        total = 0
+        for order_item in self.items.all():
+            total += order_item.get_final_price()
+        if self.coupon:
+            total -= self.coupon.amount
+        return total
     
 
     def __str__(self):
         return str(self.id)
 
 class ShippingAddress(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)
+    profil = models.ForeignKey(Profil, on_delete=models.CASCADE, null=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     address = models.CharField(max_length=200, null=False)
     city = models.CharField(max_length=200, null=False)
@@ -103,12 +139,12 @@ class ShippingAddress(models.Model):
     def __str__(self):
         return self.address
 
-class ImageProduct(models.Model):
-    annonce_images = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='image')
+class ImagesItem(models.Model):
+    item_images = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='image')
     image = models.FileField(upload_to='image/', default='image_default.jpg', blank=True, null=True)
     
     class Meta:
         pass
 
     def __str__(self):
-        return self.annonce_images.name
+        return self.item_images.title

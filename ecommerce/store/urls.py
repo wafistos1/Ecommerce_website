@@ -3,13 +3,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path 
 from django.conf.urls import url, include
-from .views import home, add_to_cart, checkout, detail_product, favorite
+from .views import HomeView, add_to_cart, checkout, detail, favorite, detail_item
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('cart/<int:id>', add_to_cart, name='store_cart'),
+    path('', HomeView.as_view(), name='home'),
+    path('cart/<uuid:id>', add_to_cart, name='add_to_cart'),
     path('checkout/', checkout, name='store_checkout'),
-    path('detail/<int:id>', detail_product, name='store_detail'),
-    path('favorite/<int:pk>', favorite, name='favorite_annonce'),
+    path('detail/<uuid:pk>', detail.as_view(), name='store_detail'),
+    path('favorite/<uuid:pk>', favorite, name='favorite_annonce'),
     
 ]

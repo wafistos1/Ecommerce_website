@@ -41,7 +41,15 @@ INSTALLED_APPS = [
     # Local
     'store',
     'register',
+    # Allauth
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
+
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -68,6 +76,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Allauth 
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -134,3 +144,16 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_REDIRECT_URL = 'home'
+
+
+# Allauth authentification 
+
+AUTHENTICATION_BACKENDS = [
+    
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    # 'allauth.account.auth_backends.AuthenticationBackend',
+    
+]

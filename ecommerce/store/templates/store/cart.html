@@ -29,12 +29,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for product in products %}
+                            {% for product in items %}
                             <tr>
                                 <td class="cart__product__item">
-                                    <img src="{{ product.product.image.all.0.image.url }}" width="50" height="50" alt="">
+                                    <img src="{{ product.item.image.all.0.image.url }}" width="50" height="50" alt="">
                                     <div class="cart__product__item__title">
-                                        <h6>{{ product.product.name }}</h6>
+                                        <h6>{{ product.item.username }}</h6>
                                         <div class="rating">
                                             <i class="fa fa-star"></i>
                                             <i class="fa fa-star"></i>
@@ -44,13 +44,13 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="cart__price">{{ product.product.price }}</td>
+                                <td class="cart__price">{{ product.item.price }}</td>
                                 <td class="cart__quantity">
                                     
                                         {{ product.quantity }}
                                     
                                 </td>
-                                <td class="cart__total">$ {{ product.get_total }}</td>
+                                <td class="cart__total">$ {{ product.get_total_item_price }}</td>
                                 <td class="cart__close"><span class="icon_close"></span></td>
                             </tr>
                             {% endfor %}

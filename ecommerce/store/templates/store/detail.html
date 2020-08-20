@@ -36,7 +36,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="product__details__text">
-                    <h3>{{ product.name }} </h3>
+                    <h3>{{ product.profil.username }} </h3>
                     <div class="rating">
                         <i class="fa fa-star"></i>
                         <i class="fa fa-star"></i>
@@ -45,7 +45,11 @@
                         <i class="fa fa-star"></i>
                         <span>( 138 reviews )</span>
                     </div>
-                    <div class="product__details__price">$ {{ product.price }}<span>$ 83.0</span></div>
+                    {% if product.discount_price %}
+                    <div class="product__details__price">${{ product.discount_price }}<span>$ {{ product.price}}</span></div>
+                    {% else %}
+                    <div class="product__details__price">${{ product.price }}</div>
+                    {% endif %}
                     <p>{{ product.short_description }}</p>
                     <div class="product__details__button">
                         <div class="quantity">
@@ -54,7 +58,7 @@
                                 <input type="text" value="1">
                             </div>
                         </div>
-                        <a href="{{ product.get_add_to_cart }}" class="cart-btn"><span class="icon_bag_alt"></span> Add to cart</a>
+                        <a href="{{ product.get_add_to_cart_url }}" class="cart-btn"><span class="icon_bag_alt"></span> Add to cart</a>
                         <ul class="favorite_heart">
                             {% if product.is_favorite %}
                             <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon" name='1' "><span class="icon_heart" ></span></a></li>
@@ -70,7 +74,7 @@
                                 <span>Availability:</span>
                                 <div class="stock__checkbox">
                                     <label for="stockin">
-                                        In Stock
+                                        {{ product.label }}
                                         <input type="checkbox" id="stockin">
                                         <span class="checkmark"></span>
                                     </label>
