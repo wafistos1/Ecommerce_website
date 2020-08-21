@@ -61,7 +61,7 @@
                         <a href="{{ product.get_add_to_cart_url }}" class="cart-btn"><span class="icon_bag_alt"></span> Add to cart</a>
                         <ul class="favorite_heart">
                             {% if product.is_favorite %}
-                            <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon" name='1' "><span class="icon_heart" ></span></a></li>
+                            <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon" name='1' ><span class="icon_heart" ></span></a></li>
                             {% else %}
                             <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon" name='2' ><span class="icon_heart_alt"></span></a></li>
                             {% endif %}
