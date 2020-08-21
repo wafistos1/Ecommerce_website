@@ -7,8 +7,10 @@ $(document).on('click', '.icon_icon', function (event) {
         url: $(this).attr('href'),
         type: 'POST',
         data: {
+            
             val: $(this).attr('name'),
             pk: $(this).attr('href'),
+            
         },
         dataType: 'json',
         success: function (response) {
@@ -25,5 +27,37 @@ $(document).on('click', '.icon_icon', function (event) {
             console.log(rs);
         }
     });
+
+});
+
+
+$(document).on('click', '.cart-btn', function (event) {
+
+    event.preventDefault();
+    
+
+    let id = $(this).attr('name');
+    let url = $(this).attr('href');
+
+    $.ajax({
+        url: $(this).attr('href'),
+        type: 'POST',
+        data: {
+            
+            pk: id,
+            csrfmiddlewaretoken: window.CSRF_TOKEN,
+        },
+        dataType: 'json',
+        success: function (response) {
+            
+            alert('coucou');
+        },
+        error: function (rs, e) {
+            console.log(rs);
+        }
+    });
+    
+
+    
 
 });

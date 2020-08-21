@@ -9,6 +9,7 @@ from register.models import Profil
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse, HttpResponse
+from django.core import serializers
 
 class HomeView(ListView):
     model = Item
@@ -23,7 +24,10 @@ class detail(DetailView):
 
 @login_required(login_url='login')
 def add_to_cart(request, id):
-    item = get_object_or_404(Item, id=id)
+    print(request.POST.get('pk'))
+    pk = request.POST.get('pk')
+    item = get_object_or_404(Item, id=pk)
+    
     order_item, created = OrderItem.objects.get_or_create(item=item, user=request.user.profil)
     if order_item.quantity == 0:
         order_item.quantity = 1
@@ -31,11 +35,13 @@ def add_to_cart(request, id):
         order_item.quantity += 1
     order_item.save()
     item_items_cart = OrderItem.objects.filter(user=request.user.profil)
+    data = serializers.serialize("json", item_items_cart)
 
     context = {
-        'items': item_items_cart
+        'items': data
     }
-    return render(request, 'store/cart.html', context)
+    
+    return JsonResponse(context, safe=False)
 
 
 @login_required(login_url='login')
@@ -114,3 +120,14 @@ def favorite(request, pk):
         }
     dump = json.dumps(context)
     return HttpResponse(dump, content_type='applicaion/json')
+
+
+@login_required(login_url='login')
+def list_cart(request):
+    orderItem = OrderItem.objects.filter(user=request.user.profil)
+
+
+    context = {
+        'items': orderItem,
+    }
+    return render(request, 'store/cart.html', context)

@@ -45,6 +45,9 @@ class Item(models.Model):
     def get_add_to_cart_url(self):
         return reverse("add_to_cart", args=[str(self.id)])
 
+    def get_list_cart(self):
+        return reverse('list_cart', args=(str(self.id)))
+
     # def get_remove_from_cart_url(self):
     #     return reverse("core:remove-from-cart", args=[str(self.id)])
 
@@ -83,6 +86,7 @@ class OrderItem(models.Model):
         if self.item.discount_price:
             return self.get_total_discount_item_price()
         return self.get_total_item_price()
+    
 
 
 class Order(models.Model):

@@ -20,7 +20,7 @@
                 <div class="product__details__pic">
                     <div class="product__details__pic__left product__thumb nice-scroll">
                         {% for product_image in product.image.all %}
-                        <a class="pt active" href="#product-1">
+                        <a class="pt active" id="pt_active" href="{{ product.id }}">
                             <img src="{{ product_image.image.url }}" alt="">
                         </a>
                         {% endfor %}
@@ -36,7 +36,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="product__details__text">
-                    <h3>{{ product.profil.username }} </h3>
+                    <h3>{{ product.title }} </h3>
                     <div class="rating">
                         <i class="fa fa-star"></i>
                         <i class="fa fa-star"></i>
@@ -58,11 +58,14 @@
                                 <input type="text" value="1">
                             </div>
                         </div>
-                        <a href="{{ product.get_add_to_cart_url }}" class="cart-btn"><span class="icon_bag_alt"></span> Add to cart</a>
+                        <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+                        <a href="{{ product.get_add_to_cart_url }}" class="cart-btn" name='{{ product.id }}'><span class="icon_bag_alt"></span> Add to cart</a>
                         <ul class="favorite_heart">
                             {% if product.is_favorite %}
+                            <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
                             <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon" name='1' ><span class="icon_heart" ></span></a></li>
                             {% else %}
+                            <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
                             <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon" name='2' ><span class="icon_heart_alt"></span></a></li>
                             {% endif %}
                             <li><a href="#"><span class="icon_adjust-horiz"></span></a></li>
