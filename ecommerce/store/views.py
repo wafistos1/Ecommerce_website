@@ -95,18 +95,19 @@ def favorite(request, pk):
     # print('je suis dans favorite views')
     
     if favorite_annonce.favorite.filter(id=request.user.profil.id).exists():
-        
+        print(f'favorite_annonce exists en etat: {favorite_annonce.is_favorite}' )
         favorite_annonce.favorite.remove(request.user.profil.id)
         favorite_annonce.is_favorite = False
         favorite_annonce.save()
     else:
         
         favorite_annonce.favorite.add(request.user.profil.id)
+        print(f'favorite_annonce exists pas : {favorite_annonce.is_favorite}' )
+
         favorite_annonce.is_favorite = True
         favorite_annonce.save()
-        print(f' Etat du favorite {favorite_annonce.favorite}' )
     context = {
             'etat': favorite_annonce.is_favorite,
         }
     dump = json.dumps(context)
-    return HttpResponse(dump, content_type='applicaion/json')
+    return HttpResponse(dump, content_type='text/html')
