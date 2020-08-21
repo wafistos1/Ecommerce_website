@@ -113,4 +113,4 @@ def favorite(request, pk):
             'etat': favorite_annonce.is_favorite,
         }
     dump = json.dumps(context)
-    return HttpResponse(dump, content_type='text/html')
+    return HttpResponse(dump, content_type='applicaion/json')
