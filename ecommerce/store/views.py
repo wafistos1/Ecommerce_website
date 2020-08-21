@@ -25,7 +25,10 @@ class detail(DetailView):
 def add_to_cart(request, id):
     item = get_object_or_404(Item, id=id)
     order_item, created = OrderItem.objects.get_or_create(item=item, user=request.user.profil)
-    order_item.quantity += 1
+    if order_item.quantity == 0:
+        order_item.quantity = 1
+    else:
+        order_item.quantity += 1
     order_item.save()
     item_items_cart = OrderItem.objects.filter(user=request.user.profil)
 
