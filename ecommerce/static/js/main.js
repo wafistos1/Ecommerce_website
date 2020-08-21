@@ -250,10 +250,10 @@ $(document).on('click', '.icon_icon', function (event) {
         dataType: 'json',
         success: function (response) {
             if (response['etat'] == true) {
-                $('.icon_icon span').toggleClass('icon_heart icon_heart_alt')
+                $('.icon_icon span').toggleClass('icon_heart icon_heart_alt');
             }
             else {
-                $('.icon_icon span').toggleClass('icon_heart_alt icon_heart')
+                $('.icon_icon span').toggleClass('icon_heart_alt icon_heart');
             }
 
         },
