@@ -86,8 +86,9 @@ class OrderItem(models.Model):
         if self.item.discount_price:
             return self.get_total_discount_item_price()
         return self.get_total_item_price()
-    
 
+    def get_remove_from_cart_url(self):
+        return reverse('remove_from_cart', args=(str(self.pk)))
 
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -139,6 +140,7 @@ class ShippingAddress(models.Model):
     state = models.CharField(max_length=200, null=False)
     zipcode = models.CharField(max_length=200, null=False)
     date_added = models.DateTimeField(auto_now_add=True)
+    
 
     def __str__(self):
         return self.address

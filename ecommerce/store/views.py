@@ -2,12 +2,13 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.views.generic import ListView, DetailView, View
 from django.shortcuts import get_object_or_404
+import json
 from store.models import OrderItem, Order, Item, ShippingAddress
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from register.models import Profil
+from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
-import json
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 
@@ -17,30 +18,32 @@ class HomeView(ListView):
     template_name = "store/home.html"
     context_object_name = 'products'
 
+
 class detail(DetailView):
     model = Item
     template_name = 'store/detail.html'
     context_object_name = 'product'
+
 
 @login_required(login_url='login')
 def add_to_cart(request, id):
     print(request.POST.get('pk'))
     pk = request.POST.get('pk')
     item = get_object_or_404(Item, id=pk)
-    
     order_item, created = OrderItem.objects.get_or_create(item=item, user=request.user.profil)
     if order_item.quantity == 0:
         order_item.quantity = 1
     else:
         order_item.quantity += 1
     order_item.save()
-    item_items_cart = OrderItem.objects.filter(user=request.user.profil)
-    data = serializers.serialize("json", item_items_cart)
-
+    item_items_cart = OrderItem.objects.get(user=request.user.profil, item=item)
+    item_title = item_items_cart.item.title
+    item_price = item_items_cart.item.price 
     context = {
-        'items': data
-    }
-    
+        'item_title': item_title,
+        'item_price': item_price,
+        # 'item_image_url': item_image_url,
+    } 
     return JsonResponse(context, safe=False)
 
 
@@ -92,42 +95,52 @@ def detail_item(request, id):
 def favorite(request, pk):
     """
     """
-
     if request.method == "POST":
         val = request.POST.get('val')
         print(val)
-    favorite_annonce = None
-    if pk:
-        favorite_annonce = get_object_or_404(Item, id=pk)
-    print(f'favorite_annonce: {favorite_annonce}' )
-    # # Verifier si l'object existe dans la BD 
-    # print('je suis dans favorite views')
-    
-    if favorite_annonce.favorite.filter(id=request.user.profil.id).exists():
-        print(f'favorite_annonce exists en etat: {favorite_annonce.is_favorite}' )
-        favorite_annonce.favorite.remove(request.user.profil.id)
-        favorite_annonce.is_favorite = False
-        favorite_annonce.save()
-    else:
-        
-        favorite_annonce.favorite.add(request.user.profil.id)
-        print(f'favorite_annonce exists pas : {favorite_annonce.is_favorite}' )
-
-        favorite_annonce.is_favorite = True
-        favorite_annonce.save()
-    context = {
-            'etat': favorite_annonce.is_favorite,
-        }
-    dump = json.dumps(context)
-    return HttpResponse(dump, content_type='applicaion/json')
-
+        if request.is_ajax():
+            favorite_annonce = None
+            if pk:
+                favorite_annonce = get_object_or_404(Item, id=pk)
+            if favorite_annonce.favorite.filter(id=request.user.profil.id).exists():
+                print(f'favorite_annonce exists en etat: {favorite_annonce.is_favorite}' )
+                favorite_annonce.favorite.remove(request.user.profil.id)
+                favorite_annonce.is_favorite = False
+                favorite_annonce.save()
+            else:
+                favorite_annonce.favorite.add(request.user.profil.id)
+                print(f'favorite_annonce exists pas : {favorite_annonce.is_favorite}' )
+                favorite_annonce.is_favorite = True
+                favorite_annonce.save()
+            context = {
+                    'etat': favorite_annonce.is_favorite,
+                }
+            dump = json.dumps(context)
+            return HttpResponse(dump, content_type='applicaion/json')
+        else:
+            messages.add_message(request, messages.ERROR, "ERROR REQUEST'")
+        return(render(request, 'store/cart.htm'))
 
 @login_required(login_url='login')
 def list_cart(request):
     orderItem = OrderItem.objects.filter(user=request.user.profil)
-
-
     context = {
         'items': orderItem,
+    }
+    return render(request, 'store/cart.html', context)
+
+
+@login_required(login_url='login')
+def remove_cart(request, id):
+    if request.method == "GET":
+        remove_item = get_object_or_404(OrderItem, id=id)
+        if remove_item.user == request.user.profil:
+            remove_item.delete()
+            print(f'ItemOreder {remove_item} are deleted')
+            messages.add_message(request, messages.SUCCESS, f' {remove_item.item.title} are DELETED')
+        return redirect('list_cart')
+    else:
+        messages.add_message(request, messages.ERROR, "YOU CANT DELETE THIS ITEM'")
+    context = {
     }
     return render(request, 'store/cart.html', context)
