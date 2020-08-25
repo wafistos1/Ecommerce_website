@@ -46,7 +46,7 @@ def add_to_cart(request, id):
             # 'item_image_url': item_image_url,
         } 
         return JsonResponse(context, safe=False)
-    return render(request, 'store/detail.html')
+    return redirect('store_detail')
 
 
 @login_required(login_url='login')
