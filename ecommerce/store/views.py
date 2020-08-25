@@ -27,24 +27,26 @@ class detail(DetailView):
 
 @login_required(login_url='login')
 def add_to_cart(request, id):
-    print(request.POST.get('pk'))
-    pk = request.POST.get('pk')
-    item = get_object_or_404(Item, id=pk)
-    order_item, created = OrderItem.objects.get_or_create(item=item, user=request.user.profil)
-    if order_item.quantity == 0:
-        order_item.quantity = 1
-    else:
-        order_item.quantity += 1
-    order_item.save()
-    item_items_cart = OrderItem.objects.get(user=request.user.profil, item=item)
-    item_title = item_items_cart.item.title
-    item_price = item_items_cart.item.price 
-    context = {
-        'item_title': item_title,
-        'item_price': item_price,
-        # 'item_image_url': item_image_url,
-    } 
-    return JsonResponse(context, safe=False)
+    if request.is_ajax():
+        print(request.POST.get('pk'))
+        pk = request.POST.get('pk')
+        item = get_object_or_404(Item, id=pk)
+        order_item, created = OrderItem.objects.get_or_create(item=item, user=request.user.profil)
+        if order_item.quantity == 0:
+            order_item.quantity = 1
+        else:
+            order_item.quantity += 1
+        order_item.save()
+        item_items_cart = OrderItem.objects.get(user=request.user.profil, item=item)
+        item_title = item_items_cart.item.title
+        item_price = item_items_cart.item.price 
+        context = {
+            'item_title': item_title,
+            'item_price': item_price,
+            # 'item_image_url': item_image_url,
+        } 
+        return JsonResponse(context, safe=False)
+    return render(request, 'store/cart.html')
 
 
 @login_required(login_url='login')
