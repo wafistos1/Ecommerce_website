@@ -73,12 +73,12 @@
     <header class="header">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-xl-3 col-lg-2">
+                <div class="col-xl-1 col-lg-1">
                     <div class="header__logo">
                         <a href="{% url 'home' %}"><img src="{% static 'img/logo.png' %}" alt=""></a>
                     </div>
                 </div>
-                <div class="col-xl-6 col-lg-7">
+                <div class="col-xl-4 col-lg-5">
                     <nav class="header__menu">
                         <ul>
                             <li class="active"><a href="{% url 'home' %}">Home</a></li>
@@ -98,7 +98,7 @@
                         </ul>
                     </nav>
                 </div>
-                <div class="col-lg-3">
+                <div class="col-lg-6">
                     <div class="header__right">
                         <div class="header__right__auth">
                             {% if user.is_authenticated %}
@@ -109,15 +109,28 @@
                             <a href="#">Register</a>
                             {% endif %}
                         </div>
+                        <nav class="header__menu">
                         <ul class="header__right__widget">
                             <li><span class="icon_search search-switch"></span></li>
                             <li><a href="#"><span class="icon_heart_alt"></span>
                                 <div class="tip">2</div>
                             </a></li>
-                            <li><a href="{% url 'list_cart'  %}"><span class="icon_bag_alt"></span>
-                                <div class="tip">2</div>
-                            </a></li>
+                           
+                            
+                            <li><a href="" ><span class="icon_bag_alt"   ></span>
+                               
+                                <div class="tip">{{ count }} </div> 
+                            </a>
+                                <ul class="dropdown" id="header__right__widget">
+                                    <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+                                    {% for item in orderItems %}
+                                    <li><a href="{{ item.item.get_absolute_url }}">{{ item.item.title|truncatechars:13}}</a></li>
+                                    {% endfor %}
+                                    <li><a href="{% url 'list_cart'  %}">Cart</a></li>
+                                </ul>
+                            </li>
                         </ul>
+                    </nav>
                     </div>
                 </div>
             </div>

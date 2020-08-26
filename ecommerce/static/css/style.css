@@ -8,7 +8,7 @@
 ******************************************************************/
 
 /*------------------------------------------------------------------
-[Table of contents]
+[Table of contents]class="dropdown"
 
 1.  Template default CSS
 	1.1	Variables
@@ -3679,4 +3679,59 @@ ol {
 		width: 100%;
 		font-size: 24px;
 	}
+}
+
+
+
+/*  */
+/*  */
+/*  */
+/*  */
+/*  */
+/*  */
+/*  */
+/*  */
+/*  */
+/*  */
+
+#header__right__widget ul li:hover .dropdown {
+	top: 27px;
+	opacity: 1;
+	visibility: visible;
+}
+#header__right__widget ul li:last-child {
+	margin-right: 0;
+}
+
+#header__right__widget ul li .dropdown {
+	position: absolute;
+	left: 0;
+	top: 56px;
+	width: 150px;
+	background: #111111;
+	text-align: left;
+	padding: 2px 0;
+	z-index: 9;
+	opacity: 0;
+	visibility: hidden;
+	-webkit-transition: all, 0.3s;
+	-o-transition: all, 0.3s;
+	transition: all, 0.3s;
+}
+
+#header__right__widget ul li .dropdown li {
+	display: block;
+	margin-right: 0;
+}
+
+#header__right__widget ul li .dropdown li a {
+	font-size: 14px;
+	color: #ffffff;
+	font-weight: 400;
+	padding: 8px 20px;
+	text-transform: capitalize;
+}
+
+#header__right__widget ul li .dropdown li a:after {
+	display: none;
 }

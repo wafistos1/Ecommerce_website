@@ -54,6 +54,10 @@ $(document).on('click', '.cart-btn', function (event) {
             var html = ' <p>Added item <strong>' + response.item_title + '</strong> to cart.</p>'
             $('.modal-body').html(html);
             $('.myModalt').modal('show');
+             	
+
+            $( "div.tip" ).replaceWith( "<div class='tip'>" + response.count + "</div>" );
+            
                 
         },
         error: function (rs, e) {
@@ -63,5 +67,26 @@ $(document).on('click', '.cart-btn', function (event) {
 
 
 
+
+});
+
+$('#header__right__widget').mouseenter(function (event){
+   
+    
+    $.ajax({
+        url: '/cart_list/',
+        type: 'POST',
+        data: {
+            csrfmiddlewaretoken: window.CSRF_TOKEN,
+        },
+        dataType: 'json',
+        success: function (response) {
+            
+            $( "div.tip" ).replaceWith( "<div class='tip'>" + response.count + "</div>" );
+        },
+        error: function (rs, e) {
+            // alert('error')
+        }
+    });
 
 });

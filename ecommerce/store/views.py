@@ -17,12 +17,26 @@ class HomeView(ListView):
     paginate_by = 10
     template_name = "store/home.html"
     context_object_name = 'products'
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in a QuerySet of all the books 
+        context['orderItems'] = OrderItem.objects.filter(user=self.request.user.profil).order_by('-id')[:3]
+        context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False)[:3].count()
+        return context
+
 
 
 class detail(DetailView):
     model = Item
     template_name = 'store/detail.html'
     context_object_name = 'product'
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False)[:3].count()
+        return context
 
 
 @login_required(login_url='login')
@@ -43,6 +57,7 @@ def add_to_cart(request, id):
         context = {
             'item_title': item_title,
             'item_price': item_price,
+            'count': OrderItem.objects.filter(user=request.user.profil, selected=False).count()
             # 'item_image_url': item_image_url,
         } 
         return JsonResponse(context, safe=False)
@@ -76,17 +91,19 @@ def detail_item(request, id):
     item = None
     if id:
         item = get_object_or_404(Item, id=id)
-    
     if item.favorite.filter(id=request.user.id).exists():
         item.is_favorite = True
         item.save()
     else:
         print('favorite is now False')
 
-
+    countItem = OrderItem.objects.filter(user=request.user.profil, selected=False)
+    print(f'count {countItem.count()}')
     context = {
         
-        'item': item
+        'item': item,
+        'count': countItem.count(),
+
 
     }
     return render(request, 'store/detail.html', context)
@@ -125,9 +142,19 @@ def favorite(request, pk):
 
 @login_required(login_url='login')
 def list_cart(request):
-    orderItem = OrderItem.objects.filter(user=request.user.profil)
+
+    orderItems = OrderItem.objects.filter(user=request.user.profil)
+    if request.is_ajax():
+        print('if ajax cart update')
+        for order in orderItems:
+            order.selected = True
+            order.save()
+    countItem = OrderItem.objects.filter(user=request.user.profil, selected=False)
+    
+    print(countItem)
     context = {
-        'items': orderItem,
+        'items': orderItems,
+        'count': countItem.count()
     }
     return render(request, 'store/cart.html', context)
 
