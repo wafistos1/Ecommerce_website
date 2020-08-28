@@ -53,9 +53,7 @@ $(document).on('click', '.cart-btn', function (event) {
             
             var html = ' <p>Added item <strong>' + response.item_title + '</strong> to cart.</p>'
             $('.modal-body').html(html);
-            $('.myModalt').modal('show');
-             	
-
+            $('.myModal').modal('show');
             $( "div.tip" ).replaceWith( "<div class='tip'>" + response.count + "</div>" );
             
                 
@@ -72,7 +70,7 @@ $(document).on('click', '.cart-btn', function (event) {
 
 $('#header__right__widget').mouseenter(function (event){
    
-    
+
     $.ajax({
         url: '/cart_list/',
         type: 'POST',
@@ -86,6 +84,43 @@ $('#header__right__widget').mouseenter(function (event){
         },
         error: function (rs, e) {
             // alert('error')
+        }
+    });
+
+});
+
+
+$('.pro-qty span').click(function (event){
+   
+    var indent = $(this).parent().find(':nth-child(2)').attr('value');
+    var id_product =$(this).parent().find(':nth-child(2)').attr('name');
+    var action = 'toto';
+     
+         action = $(this).attr('class')
+    // alert(indent);
+    // alert(id_product);
+    // alert(action);
+    $.ajax({
+        url: '/update_item/',
+        type: 'POST',
+        data: {
+            'indent': indent,
+            'id': id_product,
+            'action': action,
+            csrfmiddlewaretoken: window.CSRF_TOKEN,
+        },
+        dataType: 'json',
+        success: function (response) {
+            var html = '<input class="myclass" id="toto'+response.id + 'type="text" name='+ response.id +' value="'+ response.quantity + '">'
+            var total = '<td class="cart__total" id="total'+response.id + '">$' + response.total + '</td>';
+            var total_cart = '<li class="total_cart">Subtotal <span>$ '+ response.total_cart +'</span></li>'
+            $(':input[id="toto'+response.id +'"]').replaceWith(html); 
+            $('#total'+response.id +'').replaceWith(total);
+            $('.total_cart').replaceWith(total_cart);
+            
+        },
+        error: function (rs, e) {
+            alert('error');
         }
     });
 

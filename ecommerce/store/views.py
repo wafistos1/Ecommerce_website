@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.views.generic import ListView, DetailView, View
 from django.shortcuts import get_object_or_404
 import json
+from django.db.models import Sum
 from store.models import OrderItem, Order, Item, ShippingAddress
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -19,12 +20,12 @@ class HomeView(ListView):
     context_object_name = 'products'
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs) 
         # Add in a QuerySet of all the books 
-        context['orderItems'] = OrderItem.objects.filter(user=self.request.user.profil).order_by('-id')[:3]
-        context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False)[:3].count()
+        if self.request.user.profil: 
+            context['orderItems'] = OrderItem.objects.filter(user=self.request.user.profil).order_by('-id')[:3] 
+            context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False).count()
         return context
-
 
 
 class detail(DetailView):
@@ -53,14 +54,16 @@ def add_to_cart(request, id):
         order_item.save()
         item_items_cart = OrderItem.objects.get(user=request.user.profil, item=item)
         item_title = item_items_cart.item.title
-        item_price = item_items_cart.item.price 
+        item_price = item_items_cart.item.price
+        id_order = item_items_cart.id
         context = {
             'item_title': item_title,
             'item_price': item_price,
-            'count': OrderItem.objects.filter(user=request.user.profil, selected=False).count()
+            'count': OrderItem.objects.filter(user=request.user.profil, selected=False).count(),
+            'id': id_order, 
             # 'item_image_url': item_image_url,
         } 
-        return JsonResponse(context, safe=False)
+        return JsonResponse(context)
     return redirect('store_detail')
 
 
@@ -103,8 +106,6 @@ def detail_item(request, id):
         
         'item': item,
         'count': countItem.count(),
-
-
     }
     return render(request, 'store/detail.html', context)
 
@@ -134,11 +135,11 @@ def favorite(request, pk):
             context = {
                     'etat': favorite_annonce.is_favorite,
                 }
-            dump = json.dumps(context)
-            return HttpResponse(dump, content_type='applicaion/json')
+            return JsonResponse(context)
         else:
             messages.add_message(request, messages.ERROR, "ERROR REQUEST'")
-        return(render(request, 'store/cart.htm'))
+        return render(request, 'store/cart.htm')
+
 
 @login_required(login_url='login')
 def list_cart(request):
@@ -150,11 +151,17 @@ def list_cart(request):
             order.selected = True
             order.save()
     countItem = OrderItem.objects.filter(user=request.user.profil, selected=False)
-    
+    total_cart1 = OrderItem.objects.filter(user=request.user.profil)
+    total_cart = 0
+    for total in total_cart1:
+        total_cart += total.get_total_item_price() 
+    print(total_cart1, )
+    # total_cart = total_cart2 * total_cart1
     print(countItem)
     context = {
         'items': orderItems,
-        'count': countItem.count()
+        'count': countItem.count(),
+        'total_cart': total_cart, 
     }
     return render(request, 'store/cart.html', context)
 
@@ -172,4 +179,55 @@ def remove_cart(request, id):
         messages.add_message(request, messages.ERROR, "YOU CANT DELETE THIS ITEM'")
     context = {
     }
+    return render(request, 'store/cart.html', context)
+
+
+def update_item(request):
+    if request.is_ajax():
+        print(request.POST)
+        id = request.POST['id']
+        quantity = request.POST['indent']
+        action = request.POST['action']
+
+        
+        orderItem = get_object_or_404(OrderItem, id=id)
+        quantity = None 
+        if orderItem.user == request.user.profil:
+            if action == 'inc qtybtn':
+                orderItem.quantity += 1
+                orderItem.save()
+                
+            elif action == 'dec qtybtn':
+                if orderItem.quantity <= 0:
+                    orderItem.quantity = 0
+                else:
+                    orderItem.quantity -= 1
+                orderItem.save()
+                
+            else:
+                pass
+        quantity = orderItem.quantity
+        total = orderItem.get_total_item_price()
+        tatal = float(total)
+        quantity = int(quantity)
+        id_item = int(orderItem.id)
+        total_cart1 = OrderItem.objects.filter(user=request.user.profil)
+        total_cart = total_cart1.get_total_orderitem()
+        
+        total_cart = float(total_cart) 
+        print(id_item)
+        print(tatal)
+        print(total_cart)
+        # print(type(total_cart))
+        context = {
+            'quantity': quantity,
+            'id': id_item,
+            'total': total,
+            'total_cart': total_cart,
+            }
+        
+        return JsonResponse(context)
+    context = {
+
+        }
     return render(request, 'store/cart.html', context)

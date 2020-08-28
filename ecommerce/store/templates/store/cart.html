@@ -56,17 +56,22 @@
                                 </td>
                                 <td class="cart__price">{{ product.item.price }}</td>
                                 <td class="cart__quantity">
+                                <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+                                <div class="pro-qty">
+                                    <input class="myclass" id='toto{{ product.id }}' type="text" name='{{ product.id }}' value="{{ product.quantity }}">
                                     
-                                        {{ product.quantity }}
+                                </div>
+                            
+                                        
                                     
                                 </td>
-                                <td class="cart__total">$ {{ product.get_total_item_price }}</td>
+                                <td class="cart__total" id="total{{product.id}}">$ {{ product.get_total_item_price }}</td>
                                 <div class="container">
-                                <td class="cart__close" data-toggle="modal" data-target="#myModal" ><span class="icon_close"></span></a></td>
+                                <td class="cart__close" data-toggle="modal" data-target="#myModal{{product.id}}" ><span class="icon_close"></span></a></td>
                                     <!-- Trigger the modal with a button -->
                                   
                                     
-                                    <div class="modal fade" id="myModal" role="dialog">
+                                    <div class="modal fade" id="myModal{{product.id}}" role="dialog">
                                       <div class="modal-dialog">
                                         
                                         <!-- Modal content-->
@@ -88,20 +93,6 @@
                                     
                                     </div>
                                   </div>
-                                
-                                
-                                    
-                                    <!-- Trigger the modal with a button -->
-                                  
-                                    <!-- Modal -->
-                                    
-                                    
-                                  
-                                
-                               
-                                
-                                
-                                
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -131,11 +122,10 @@
                     </form>
                 </div>
             </div>
-            <div class="col-lg-4 offset-lg-2">
                 <div class="cart__total__procced">
                     <h6>Cart total</h6>
                     <ul>
-                        <li>Subtotal <span>$ 750.0</span></li>
+                        <li class="total_cart">Subtotal <span>$ {{ total_cart }}</span></li>
                         <li>Total <span>$ 750.0</span></li>
                     </ul>
                     <a href="#" class="primary-btn">Proceed to checkout</a>

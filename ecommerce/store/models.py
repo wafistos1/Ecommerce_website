@@ -67,7 +67,7 @@ class OrderItem(models.Model):
     """
     user = models.ForeignKey(Profil,  on_delete=models.CASCADE)
     ordered = models.BooleanField(default=False)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='itemOrders')
     quantity = models.IntegerField(default=0)
     selected = models.BooleanField(default=False)
 
@@ -76,6 +76,9 @@ class OrderItem(models.Model):
 
     def get_total_item_price(self):
         return self.quantity * self.item.price
+    
+    def get_total_item(self):
+        return OrderItem.objects.all().count()
 
     def get_total_discount_item_price(self):
         return self.quantity * self.item.discount_price
@@ -90,6 +93,12 @@ class OrderItem(models.Model):
 
     def get_remove_from_cart_url(self):
         return reverse('remove_from_cart', args=(str(self.pk)))
+    
+    def get_total_orderitem(self):
+        total = 0
+        return total
+
+    
 
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
