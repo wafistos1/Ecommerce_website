@@ -211,7 +211,7 @@ def update_item(request):
         tatal = float(total)
         quantity = int(quantity)
         id_item = int(orderItem.id)
-        total_cart1 = OrderItem.objects.filter(user=request.user.profil)
+        total_cart1 = OrderItem.objects.filter(user=request.user.profil)[0] 
         total_cart = total_cart1.get_total_orderitem()
         
         total_cart = float(total_cart) 

@@ -96,6 +96,9 @@ class OrderItem(models.Model):
     
     def get_total_orderitem(self):
         total = 0
+        items = OrderItem.objects.filter(user=self.user)
+        for item in items:
+            total += item.get_total_item_price()
         return total
 
     
