@@ -122,10 +122,12 @@
                                 <div class="tip">{{ count }} </div> 
                             </a>
                                 <ul class="dropdown" id="header__right__widget">
+                                    {% if user.is_authenticated %}
                                     <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
                                     {% for item in orderItems %}
                                     <li><a href="{{ item.item.get_absolute_url }}">{{ item.item.title|truncatechars:13}}</a></li>
                                     {% endfor %}
+                                    {% endif %}
                                     <li><a href="{% url 'list_cart'  %}">Cart</a></li>
                                 </ul>
                             </li>

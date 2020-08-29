@@ -20,12 +20,17 @@ class HomeView(ListView):
     context_object_name = 'products'
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs) 
-        # Add in a QuerySet of all the books 
-        if self.request.user.profil: 
+        context = super().get_context_data(**kwargs)
+        
+
+        
+        if self.request.user.is_authenticated: 
             context['orderItems'] = OrderItem.objects.filter(user=self.request.user.profil).order_by('-id')[:3] 
             context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False).count()
-        return context
+        else:
+            context['orderItems'] = 0
+            context['count'] = 0
+            return context
 
 
 class detail(DetailView):
