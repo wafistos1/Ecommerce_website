@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
+from django.urls import reverse
 
 class HomeView(ListView):
     model = Item
@@ -20,17 +21,14 @@ class HomeView(ListView):
     context_object_name = 'products'
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs)
-        
-
-        
+        context = super().get_context_data(**kwargs) 
         if self.request.user.is_authenticated: 
             context['orderItems'] = OrderItem.objects.filter(user=self.request.user.profil).order_by('-id')[:3] 
             context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False).count()
         else:
             context['orderItems'] = 0
             context['count'] = 0
-            return context
+        return context
 
 
 class detail(DetailView):
@@ -40,13 +38,17 @@ class detail(DetailView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated: 
         # Add in a QuerySet of all the books
-        context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False)[:3].count()
+            context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False)[:3].count()
+        else:
+            context['count'] = 0
         return context
 
 
 @login_required(login_url='login')
 def add_to_cart(request, id):
+    id= id
     if request.is_ajax():
         print(request.POST.get('pk'))
         pk = request.POST.get('pk')
@@ -69,8 +71,8 @@ def add_to_cart(request, id):
             # 'item_image_url': item_image_url,
         } 
         return JsonResponse(context)
-    return redirect('store_detail')
-
+    url = reverse("add_to_cart", args=[str(id)])
+    return redirect(f"/detail/{id}")
 
 @login_required(login_url='login')
 def checkout(request):

@@ -1,6 +1,6 @@
 {% extends 'store/home.html' %}
 
-
+{% load static %}
 
 {% block Categories-Section %}
 {% endblock Categories-Section %}
@@ -108,7 +108,8 @@
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6">
                 <div class="cart__btn update__btn">
-                    <a href="#"><span class="icon_loading"></span> Update cart</a>
+                    <a href="#"><img src="{% static 'img/loading.gif' %}" width="42" height="42" class="icon_loading" style="display: none;" >Update cart</img> </a>
+                    
                 </div>
             </div>
         </div>
@@ -122,14 +123,15 @@
                     </form>
                 </div>
             </div>
-                <div class="cart__total__procced">
-                    <h6>Cart total</h6>
+                <div class="col-lg-6 cart__total__procced">
+                    <h6 class="centre">Cart total</h6>
                     <ul>
                         <li class="total_cart">Subtotal <span>$ {{ total_cart }}</span></li>
-                        <li>Total <span>$ 750.0</span></li>
+                        <li class="total_cart_final">Total <span>$ {{ total_cart }}</span></li>
                     </ul>
                     <a href="#" class="primary-btn">Proceed to checkout</a>
                 </div>
+                <img class="icon__loading" src="{% static 'img/loading.gif' %}" style="display: none;"></span>
             </div>
         </div>
     </div>
@@ -161,3 +163,4 @@
 
 {% block Search-Section %}
 {% endblock Search-Section %}
+<!-- <img class="icon__loading" src="{% static 'img/loading.gif' %}" width="80" height="42" style="display: block;" "></img> -->

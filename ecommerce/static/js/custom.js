@@ -95,6 +95,7 @@ $('.pro-qty span').click(function (event){
     var indent = $(this).parent().find(':nth-child(2)').attr('value');
     var id_product =$(this).parent().find(':nth-child(2)').attr('name');
     var action = 'toto';
+    $( ".icon_loading" ).css( "display", "block" );
      
          action = $(this).attr('class')
     // alert(indent);
@@ -111,12 +112,16 @@ $('.pro-qty span').click(function (event){
         },
         dataType: 'json',
         success: function (response) {
+            console.log(response.total, response.total_cart)
+            $( ".icon_loading" ).css( "display", "none" );
             var html = '<input class="myclass" id="toto'+response.id + 'type="text" name='+ response.id +' value="'+ response.quantity + '">'
-            var total = '<td class="cart__total" id="total'+response.id + '">$' + response.total + '</td>';
-            var total_cart = '<li class="total_cart">Subtotal <span>$ '+ response.total_cart +'</span></li>'
+            var total = '<td class="cart__total" id="total'+response.id + '">$' + (response.total).toFixed(1) + '</td>';
+            var total_cart = '<li class="total_cart">Subtotal <span>$ '+ (response.total_cart).toFixed(1) +'</span></li>';
+            var total_final = '<li class="total_cart_final">Total <span>$'+ (response.total_cart).toFixed(1)+'</span></li>'
             $(':input[id="toto'+response.id +'"]').replaceWith(html); 
             $('#total'+response.id +'').replaceWith(total);
             $('.total_cart').replaceWith(total_cart);
+            $('.total_cart_final').replaceWith(total_final);
             
         },
         error: function (rs, e) {
