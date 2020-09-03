@@ -22,12 +22,13 @@ class HomeView(ListView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs) 
-        if self.request.user.is_authenticated: 
+        if self.request.user.is_authenticated and  not self.request.user.is_superuser: 
             context['orderItems'] = OrderItem.objects.filter(user=self.request.user.profil).order_by('-id')[:3] 
             context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False).count()
+
         else:
-            context['orderItems'] = 0
-            context['count'] = 0
+            context['orderItems'] = []
+            context['count'] = []
         return context
 
 
@@ -71,28 +72,8 @@ def add_to_cart(request, id):
             # 'item_image_url': item_image_url,
         } 
         return JsonResponse(context)
-    url = reverse("add_to_cart", args=[str(id)])
+    
     return redirect(f"/detail/{id}")
-
-@login_required(login_url='login')
-def checkout(request):
-    if request.user.is_authenticated:
-        print('je suis dans le if user')
-        profil = request.user.profil
-        order = Order.objects.filter(profil=profil)
-        print(order.profil.username)
-        order = order.orderitem.all()
-    else:
-        order = []
-    
-    items = OrderItem.objects.all()
-    
-    context = {
-        'items': items,
-        'order': order,
-
-    }
-    return render(request, 'store/checkout.html', context)
 
 
 def detail_item(request, id):
@@ -129,19 +110,23 @@ def favorite(request, pk):
             favorite_annonce = None
             if pk:
                 favorite_annonce = get_object_or_404(Item, id=pk)
-            if favorite_annonce.favorite.filter(id=request.user.profil.id).exists():
-                print(f'favorite_annonce exists en etat: {favorite_annonce.is_favorite}' )
-                favorite_annonce.favorite.remove(request.user.profil.id)
+            if favorite_annonce.favorite.filter(pk=request.user.profil.id).exists(): 
+                print(f'favorite_annonce exists' )
+                print(f'favorite_annonce exists en etat: {favorite_annonce.is_favorite}')
+                favorite_annonce.favorite.remove(request.user.profil) 
                 favorite_annonce.is_favorite = False
                 favorite_annonce.save()
+                print(f'maint est en etat {favorite_annonce.is_favorite}') 
             else:
-                favorite_annonce.favorite.add(request.user.profil.id)
-                print(f'favorite_annonce exists pas : {favorite_annonce.is_favorite}' )
+                favorite_annonce.favorite.add(request.user.profil)
+                print(f'favorite_annonce exists pas ' )
+                favorite_annonce.favorite.add(request.user.profil) 
                 favorite_annonce.is_favorite = True
                 favorite_annonce.save()
+                print(f'maint est en etat {favorite_annonce.is_favorite}') 
             context = {
-                    'etat': favorite_annonce.is_favorite,
-                }
+                        'etat': favorite_annonce.is_favorite,
+                    }
             return JsonResponse(context)
         else:
             messages.add_message(request, messages.ERROR, "ERROR REQUEST'")
@@ -238,3 +223,33 @@ def update_item(request):
 
         }
     return render(request, 'store/cart.html', context)
+
+def checkout(request):
+    orderItems = []
+    total_cart = 0
+    if request.user.is_authenticated:
+        orderItems = OrderItem.objects.filter(user=request.user.profil)
+        total_cart1 = OrderItem.objects.filter(user=request.user.profil)[0] 
+        total_cart = total_cart1.get_total_orderitem()
+        
+
+
+    else:
+        orderItems = []
+    context = {
+        'orderItems': orderItems,
+        'total_cart': total_cart,
+    }
+    return render(request, 'store/checkout.html', context)
+
+
+@login_required(login_url='account_login')
+def item_favorite_list(request):
+    """
+    """
+    user = request.user
+    favorite_list = user.profil.favorite.all()
+    context = {
+        'favorite_list': favorite_list
+    }
+    return render(request, 'store/favorite.html', context)

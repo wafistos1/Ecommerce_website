@@ -1,0 +1,47 @@
+{% extends 'store/home.html' %}
+
+{% load static %}
+
+{% block Categories-Section %}
+{% endblock Categories-Section %}
+
+{% block Product-Section %}
+{% endblock Product-Section %}
+
+{% block Banner-Section %}
+{% endblock Banner-Section %}
+
+{% block Trend-Section %}
+
+  <!-- Modal -->
+
+  <div class="container">
+
+    <ul>
+      {% for favorite in favorite_list %}
+      
+      <li> {{ favorite.title }}</li>
+      {% endfor %}
+  <!-- Shop Cart Section End -->
+  </ul>
+  </div>
+  
+{% endblock Trend-Section %}
+
+{% block Discount-Section %}
+{% endblock Discount-Section %}
+
+
+{% block Services-Section %}
+{% endblock Services-Section %}
+
+
+{% block Instagram-Section %}
+{% endblock Instagram-Section %}
+
+
+
+
+{% block Search-Section %}
+{% endblock Search-Section %}
+<!-- <img class="icon__loading" src="{% static 'img/loading.gif' %}" width="80" height="42" style="display: block;" "></img> -->

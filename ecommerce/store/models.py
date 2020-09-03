@@ -32,8 +32,8 @@ class Item(models.Model):
     discount_price = models.FloatField(blank=True, null=True)
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=2)
     label = models.CharField(choices=LABEL_CHOICES, max_length=1)
-    description = models.TextField(null=True, blank=True)
-    favorite = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorite', blank=True)
+    description = models.TextField(null=True, blank=True) 
+    favorite = models.ManyToManyField(Profil, related_name='favorite', blank=True)
     is_favorite = models.BooleanField(default=False, null=True, blank=True)
 
     def __str__(self):

@@ -58,7 +58,7 @@
                                 <td class="cart__quantity">
                                 <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
                                 <div class="pro-qty">
-                                    <input class="myclass" id='toto{{ product.id }}' type="text" name='{{ product.id }}' value="{{ product.quantity }}">
+                                    <input class="detail_quntity" id='toto{{ product.id }}' type="text" name='{{ product.id }}' value="{{ product.quantity }}">
                                     
                                 </div>
                             
@@ -129,7 +129,7 @@
                         <li class="total_cart">Subtotal <span>$ {{ total_cart }}</span></li>
                         <li class="total_cart_final">Total <span>$ {{ total_cart }}</span></li>
                     </ul>
-                    <a href="#" class="primary-btn">Proceed to checkout</a>
+                    <a href="{% url 'store_checkout'%}" class="primary-btn">Proceed to checkout</a>
                 </div>
                 <img class="icon__loading" src="{% static 'img/loading.gif' %}" style="display: none;"></span>
             </div>

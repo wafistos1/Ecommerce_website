@@ -14,14 +14,12 @@ $(document).on('click', '.icon_icon', function (event) {
         },
         dataType: 'json',
         success: function (response) {
-
             if (response['etat'] == true) {
                 $('.icon_icon span').toggleClass('icon_heart icon_heart_alt');
             }
             else {
                 $('.icon_icon span').toggleClass('icon_heart_alt icon_heart');
             }
-
         },
         error: function (rs, e) {
             console.log(rs);
@@ -68,26 +66,26 @@ $(document).on('click', '.cart-btn', function (event) {
 
 });
 
-$('#header__right__widget').mouseenter(function (event){
+// $('#header__right__widget').mouseenter(function (event){
    
 
-    $.ajax({
-        url: '/cart_list/',
-        type: 'POST',
-        data: {
-            csrfmiddlewaretoken: window.CSRF_TOKEN,
-        },
-        dataType: 'json',
-        success: function (response) {
+//     $.ajax({
+//         url: '/cart_list/',
+//         type: 'POST',
+//         data: {
+//             csrfmiddlewaretoken: window.CSRF_TOKEN,
+//         },
+//         dataType: 'json',
+//         success: function (response) {
             
-            $( "div.tip" ).replaceWith( "<div class='tip'>" + response.count + "</div>" );
-        },
-        error: function (rs, e) {
-            // alert('error')
-        }
-    });
+//             $( "div.tip" ).replaceWith( "<div class='tip'>" + response.count + "</div>" );
+//         },
+//         error: function (rs, e) {
+//             // alert('error')
+//         }
+//     });
 
-});
+// });
 
 
 $('.pro-qty span').click(function (event){
