@@ -13,23 +13,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from django.urls import reverse
+from django.template.defaulttags import register
 
 class HomeView(ListView):
     model = Item
     paginate_by = 10
     template_name = "store/home.html"
     context_object_name = 'products'
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs) 
-        if self.request.user.is_authenticated and  not self.request.user.is_superuser: 
-            context['orderItems'] = OrderItem.objects.filter(user=self.request.user.profil).order_by('-id')[:3] 
-            context['count'] = OrderItem.objects.filter(user=self.request.user.profil, selected=False).count()
-
-        else:
-            context['orderItems'] = []
-            context['count'] = []
-        return context
+    
 
 
 class detail(DetailView):
@@ -107,7 +98,8 @@ def favorite(request, pk):
         val = request.POST.get('val')
         print(val)
         if request.is_ajax():
-            favorite_annonce = None
+            favorite_annonce = False
+            etat = 0
             if pk:
                 favorite_annonce = get_object_or_404(Item, id=pk)
             if favorite_annonce.favorite.filter(pk=request.user.profil.id).exists(): 
@@ -123,9 +115,13 @@ def favorite(request, pk):
                 favorite_annonce.favorite.add(request.user.profil) 
                 favorite_annonce.is_favorite = True
                 favorite_annonce.save()
-                print(f'maint est en etat {favorite_annonce.is_favorite}') 
+                print(f'maint est en etat {favorite_annonce.is_favorite}')
+            if favorite_annonce.is_favorite == True:
+                etat = 1
+            else:
+                etat = 0
             context = {
-                        'etat': favorite_annonce.is_favorite,
+                        'etat': etat,
                     }
             return JsonResponse(context)
         else:
@@ -231,11 +227,23 @@ def checkout(request):
         orderItems = OrderItem.objects.filter(user=request.user.profil)
         total_cart1 = OrderItem.objects.filter(user=request.user.profil)[0] 
         total_cart = total_cart1.get_total_orderitem()
-        
-
-
     else:
         orderItems = []
+    if request.method == "POST":
+        if request.POST.get('creatornot') == 'on':
+            last_name = request.POST.get('last_name')
+            first_name = request.POST.get('first_name')
+            country = request.POST.get('country')
+            adress1 = request.POST.get('adress1')
+            adress2 = request.POST.get('adress2')
+            state = request.POST.get('city')
+            zipCode = request.POST.get('city')
+            phone = request.POST.get('phone')
+            email = request.POST.get('phone')
+            #continue to anonymos user
+        else:
+            pass
+
     context = {
         'orderItems': orderItems,
         'total_cart': total_cart,
@@ -253,3 +261,12 @@ def item_favorite_list(request):
         'favorite_list': favorite_list
     }
     return render(request, 'store/favorite.html', context)
+
+
+
+
+@register.filter
+def get_range(value):
+    if value == None:
+        value = 0
+    return range(value)

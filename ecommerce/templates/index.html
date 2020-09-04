@@ -1,5 +1,7 @@
 {% load static %}
 {% load cart_template_tags %}
+{% load item_templates_tages %}
+{% load ratings %}
 
 <!DOCTYPE html>
 <html lang="zxx">
@@ -16,6 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cookie&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
 
     <!-- Css Styles -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
@@ -114,7 +117,9 @@
                         <ul class="header__right__widget">
                             <li><span class="icon_search search-switch"></span></li>
                             <li><a href="{% url 'item_favorite' %}"><span class="icon_heart_alt"></span>
+                                {% if user.is_authenticated and not user.is_superuser%}
                                 <div class="tip">{{ request.user|item_favorite_count }}</div>
+                                {% endif %}
                             </a></li>
                            
                             
@@ -246,11 +251,10 @@
                         
                         <h6><a href="#">{{ product.title }}</a></h6>
                         <div class="rating">
+                            {% for i in product.get_rate_item|get_range %}
+                           
                             <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
+                            {% endfor %}
                         </div>
                         
                         {% if product.discount_price %}
@@ -727,6 +731,7 @@
 <script src="{% static 'js/jquery.nicescroll.min.js' %}"></script>
 <script src="{% static 'js/owl.carousel.min.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
+<script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
 <script src="{% static 'js/custom.js' %}"></script>
 </body>
 

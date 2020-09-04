@@ -3,11 +3,10 @@ from django import  template
 
 register = template.Library()
 
-
 @register.filter
-def cart_item_count(user):
+def item_favorite_count(user):
     if user.is_authenticated:
-        qs = OrderItem.objects.filter(user=user.profil, ordered=False)
+        qs = Item.objects.filter(favorite=user.profil) 
         if qs.exists():
             return qs.count()
             

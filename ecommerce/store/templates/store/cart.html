@@ -46,11 +46,10 @@
                                     <div class="cart__product__item__title">
                                         <h6>{{ product.item.title }}</h6>
                                         <div class="rating">
+                                            {% for i in product.itemOrders.get_rate_item|get_range %}
+                                           
                                             <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </td>

@@ -38,11 +38,11 @@
                 <div class="product__details__text">
                     <h3>{{ product.title }} </h3>
                     <div class="rating">
+                        {% for i in product.get_rate_item|get_range %}
+                       
                         <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
+                        {% endfor %}
+                    
                         <span>( 138 reviews )</span>
                     </div>
                     {% if product.discount_price %}

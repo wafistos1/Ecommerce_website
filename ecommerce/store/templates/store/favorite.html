@@ -12,20 +12,63 @@
 {% endblock Banner-Section %}
 
 {% block Trend-Section %}
-
+<section class="product spad">
   <!-- Modal -->
-
+<br>
+<br><br>
   <div class="container">
-
-    <ul>
-      {% for favorite in favorite_list %}
-      
-      <li> {{ favorite.title }}</li>
-      {% endfor %}
-  <!-- Shop Cart Section End -->
-  </ul>
+    <div class="row">
+      <div class="col-lg-12 ">
+          <div class="section-title">
+              <h4>Favorites products</h4>
+          </div>
+      </div>
+    </div>
+    <div class="row">
+    <div class="row property__gallery">
+      {% for product in favorite_list %}
+      <div class="col-lg-3 col-md-4 col-sm-6 mix cosmetic ">
+          <div class="product__item">
+              <div class="product__item__pic set-bg" data-setbg="{{product.image.all.0.image.url }}">
+                  <ul class="product__hover">
+                      <li><a href="{{product.image.all.0.image.url }}" class="image-popup"><span class="arrow_expand"></span></a></li>
+                      {% if product.is_favorite %}
+                      <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon"><span class="icon_heart"></span></a></li>
+                      {% else %}
+                      <li><a href="{% url 'favorite_annonce' pk=product.id %}" class="icon_icon"><span class="icon_heart_alt"></span></a></li>
+                      {% endif %}
+                      <li><a href="{{ product.get_absolute_url }}"><span class="icon_bag_alt"></span></a></li>
+                  </ul>
+                  {% if product.label == 'OUT OF STOK' %}
+                  <div class="label stockout">{{ product.label}}</div>
+                  {% elif product.label == 'NEW'%}
+                  <div class="label new">{{ product.label}}</div>
+                  {% endif %}
+              </div>
+              <div class="product__item__text">
+                  
+                  <h6><a href="#">{{ product.title }}</a></h6>
+                  <div class="rating">
+                    {% for i in product.get_rate_item|get_range %}
+                   
+                    <i class="fa fa-star"></i>
+                    {% endfor %}
+                </div>
+                  
+                  {% if product.discount_price %}
+              <div class="product__price">${{ product.discount_price }}<span>$ {{ product.price}}</span></div>
+              {% else %}
+              <div class="product__price">${{ product.price }}</div>
+              {% endif %}
+              </div>
+          </div>
+      </div>
+     {% endfor %}
   </div>
-  
+</div>
+  </div>
+</div>
+</section>
 {% endblock Trend-Section %}
 
 {% block Discount-Section %}

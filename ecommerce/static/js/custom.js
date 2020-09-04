@@ -1,24 +1,27 @@
-$(document).on('click', '.icon_icon', function (event) {
+$(document).on('click', '.icon_icon span', function (event) {
 
     event.preventDefault();
-
+    Element = $(this)
 
     $.ajax({
-        url: $(this).attr('href'),
+        url: $(this).parent().attr('href'),
         type: 'POST',
         data: {
 
-            val: $(this).attr('name'),
-            pk: $(this).attr('href'),
+            val: $(this).parent().attr('name'),
+            pk: $(this).parent().attr('href'),
 
         },
         dataType: 'json',
         success: function (response) {
-            if (response['etat'] == true) {
-                $('.icon_icon span').toggleClass('icon_heart icon_heart_alt');
+            if (response['etat'] == 1) {
+                
+                Element.toggleClass('icon_heart icon_heart_alt');
             }
             else {
-                $('.icon_icon span').toggleClass('icon_heart_alt icon_heart');
+                
+                Element.toggleClass('icon_heart_alt icon_heart');
+                
             }
         },
         error: function (rs, e) {
@@ -52,7 +55,7 @@ $(document).on('click', '.cart-btn', function (event) {
             var html = ' <p>Added item <strong>' + response.item_title + '</strong> to cart.</p>'
             $('.modal-body').html(html);
             $('.myModal').modal('show');
-            $( "div.tip" ).replaceWith( "<div class='tip'>" + response.count + "</div>" );
+            // $( "div.tip" ).replaceWith( "<div class='tip'>" + response.count + "</div>" );
             
                 
         },

@@ -3,6 +3,9 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from register.models import Profil
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import Avg
+# from djangoratings.fields import RatingField
 import uuid
 # Create your models here.
 CATEGORY_CHOICES = (
@@ -23,7 +26,7 @@ ADDRESS_CHOICES = (
 )
 
 
-class Item(models.Model):
+class Item(models.Model): 
     """
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -35,6 +38,16 @@ class Item(models.Model):
     description = models.TextField(null=True, blank=True) 
     favorite = models.ManyToManyField(Profil, related_name='favorite', blank=True)
     is_favorite = models.BooleanField(default=False, null=True, blank=True)
+    # rating = RatingField(range=5)
+
+
+    def get_rate_item(self):
+        rate = Rating.objects.filter(item=self).aggregate(Avg('stars'))
+        rating = rate['stars__avg']
+        if rating == None:
+            rating = 0
+        rating = int(rating)
+        return rating
 
     def __str__(self):
         return self.title
@@ -167,3 +180,8 @@ class ImagesItem(models.Model):
 
     def __str__(self):
         return self.item_images.title
+
+class Rating(models.Model):
+    item = models.ManyToManyField(Item, related_name='item')
+    user = models.ManyToManyField(Profil, related_name='profile') 
+    stars = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
