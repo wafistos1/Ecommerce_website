@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     # Local
     'store',
     'register',
-    'star_ratings',
+    # 'star_ratings',
     # 'djangoratings',
     # Allauth
     'django.contrib.sites',

@@ -24,7 +24,7 @@ urlpatterns = [
     path('', include('store.urls')),
     path('', include('register.urls')),
     path('accounts/', include('allauth.urls')),
-    path('ratings/', include('star_ratings.urls', namespace='ratings')),
+    # path('ratings/', include('star_ratings.urls', namespace='ratings')), 
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
