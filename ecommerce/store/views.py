@@ -14,13 +14,16 @@ from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from django.urls import reverse
 from django.template.defaulttags import register
+from register.forms import UserRegisterForm, profileForm
+from store.forms import adressForm, CheckoutForm
+from django.views.generic import View, DetailView, TemplateView
+
 
 class HomeView(ListView):
     model = Item
     paginate_by = 10
     template_name = "store/home.html"
     context_object_name = 'products'
-    
 
 
 class detail(DetailView):
@@ -220,35 +223,65 @@ def update_item(request):
         }
     return render(request, 'store/cart.html', context)
 
-def checkout(request):
-    orderItems = []
-    total_cart = 0
-    if request.user.is_authenticated:
+class checkoutView(View):
+    def get(self, request, *args, **kwargs):
         orderItems = OrderItem.objects.filter(user=request.user.profil)
         total_cart1 = OrderItem.objects.filter(user=request.user.profil)[0] 
         total_cart = total_cart1.get_total_orderitem()
-    else:
-        orderItems = []
-    if request.method == "POST":
-        if request.POST.get('creatornot') == 'on':
-            last_name = request.POST.get('last_name')
-            first_name = request.POST.get('first_name')
-            country = request.POST.get('country')
-            adress1 = request.POST.get('adress1')
-            adress2 = request.POST.get('adress2')
-            state = request.POST.get('city')
-            zipCode = request.POST.get('city')
-            phone = request.POST.get('phone')
-            email = request.POST.get('phone')
-            #continue to anonymos user
-        else:
-            pass
-
-    context = {
+        form = CheckoutForm(self.request.POST or None)
+        context = {
         'orderItems': orderItems,
         'total_cart': total_cart,
-    }
-    return render(request, 'store/checkout.html', context)
+        'form': form,
+        } 
+        return render(self.request, 'store/checkout.html', context)
+        
+
+    def post(self, request, *args, **kwargs):
+        orderItems = OrderItem.objects.filter(user=request.user.profil)
+        total_cart1 = OrderItem.objects.filter(user=request.user.profil)[0] 
+        total_cart = total_cart1.get_total_orderitem()
+        print(self.request.POST)
+        form = CheckoutForm(self.request.POST)
+        
+        if form.is_valid():
+            address = form.cleaned_data.get('adress1')
+            address1 = form.cleaned_data.get('adress2')
+            city = form.cleaned_data.get('city')
+            state = form.cleaned_data.get('country')
+            phone = form.cleaned_data.get('phone')
+            zipcode = form.cleaned_data.get('zip_code')
+            profil = self.request.user.profil
+            adresse_form = ShippingAddress.objects.create(
+                profil=profil,
+                address=address,
+                address1=address1,
+                city=city,
+                state=state,
+                phone=phone,
+                zipcode=zipcode,  
+            )
+            adresse = get_object_or_404(ShippingAddress, id=adresse_form.id)
+            order = Order.objects.create(
+                ref_code='b3223',
+                ordered=True,
+                shipping_address=adresse,
+                user=profil,  
+            )
+            for itemorder in orderItems:
+                order.items.add(itemorder.id ) 
+                order.save()
+            messages.success(self.request, 'Added Order success')
+            return redirect('store_checkout')
+
+        
+        messages.warning(self.request, 'Failed checkout')
+        context = {
+        'orderItems': orderItems,
+        'total_cart': total_cart,
+        'form': form,
+        } 
+        return render(self.request, 'store/checkout.html', context)
 
 
 @login_required(login_url='account_login')
@@ -261,8 +294,6 @@ def item_favorite_list(request):
         'favorite_list': favorite_list
     }
     return render(request, 'store/favorite.html', context)
-
-
 
 
 @register.filter

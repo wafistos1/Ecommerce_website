@@ -8,6 +8,8 @@ from django.db.models import Avg
 # from djangoratings.fields import RatingField
 import uuid
 # Create your models here.
+
+
 CATEGORY_CHOICES = (
     ('S', 'Shirt'),
     ('SW', 'Sport wear'),
@@ -27,7 +29,13 @@ ADDRESS_CHOICES = (
 
 
 class Item(models.Model): 
-    """
+    """[summary]
+
+    Args:
+        models ([type]): [description]
+
+    Returns:
+        [type]: [description]
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=100)
@@ -64,19 +72,24 @@ class Item(models.Model):
     # def get_remove_from_cart_url(self):
     #     return reverse("core:remove-from-cart", args=[str(self.id)])
 
-
-    
     # def get_favorite_url(self):  # new
     #     return reverse('favorite_annonce', args=[str(self.id)])
-    
+ 
     # def get_update_url(self):  # new
     #     return reverse('annonce_update', args=[str(self.id)])
-    
+ 
     # def get_delete_url(self):  # new
     #     return reverse('annonce_delete', args=[str(self.id)])
 
+
 class OrderItem(models.Model):
-    """
+    """[summary]
+
+    Args:
+        models ([type]): [description]
+
+    Returns:
+        [type]: [description]
     """
     user = models.ForeignKey(Profil,  on_delete=models.CASCADE)
     ordered = models.BooleanField(default=False)
@@ -89,7 +102,7 @@ class OrderItem(models.Model):
 
     def get_total_item_price(self):
         return self.quantity * self.item.price
-    
+
     def get_total_item(self):
         return OrderItem.objects.all().count()
 
@@ -106,7 +119,7 @@ class OrderItem(models.Model):
 
     def get_remove_from_cart_url(self):
         return reverse('remove_from_cart', args=(str(self.pk)))
-    
+
     def get_total_orderitem(self):
         total = 0
         items = OrderItem.objects.filter(user=self.user)
@@ -114,14 +127,21 @@ class OrderItem(models.Model):
             total += item.get_total_item_price()
         return total
 
-    
 
 class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    """[summary]
+
+    Args:
+        models ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    user = models.ForeignKey(Profil, on_delete=models.CASCADE)
     ref_code = models.CharField(max_length=20, blank=True, null=True)
     items = models.ManyToManyField(OrderItem)
     start_date = models.DateTimeField(auto_now_add=True)
-    ordered_date = models.DateTimeField()
+    # ordered_date = models.DateTimeField()
     ordered = models.BooleanField(default=False)
     shipping_address = models.ForeignKey('ShippingAddress', related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
     billing_address = models.ForeignKey('ShippingAddress', related_name='billing_address', on_delete=models.SET_NULL, blank=True, null=True)
@@ -131,17 +151,6 @@ class Order(models.Model):
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
-
-    '''
-    1. Item added to cart
-    2. Adding a billing address
-    (Failed checkout)
-    3. Payment
-    (Preprocessing, processing, packaging etc.)
-    4. Being delivered
-    5. Received
-    6. Refunds
-    '''
 
     def __str__(self):
         return self.user.username
@@ -153,17 +162,27 @@ class Order(models.Model):
         if self.coupon:
             total -= self.coupon.amount
         return total
-    
 
     def __str__(self):
         return str(self.id)
 
+
 class ShippingAddress(models.Model):
-    profil = models.ForeignKey(Profil, on_delete=models.CASCADE, null=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
+    """[summary]
+
+    Args:
+        models ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    profil = models.ForeignKey(Profil, on_delete=models.CASCADE, null=True, related_name='profil_address')
+    # order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     address = models.CharField(max_length=200, null=False)
-    city = models.CharField(max_length=200, null=False)
+    address1 = models.CharField(max_length=200, null=True, blank=True)
+    city = models.CharField(max_length=200, null=True, blank=True)
     state = models.CharField(max_length=200, null=False)
+    phone = models.CharField(max_length=200, null=True, blank=True)
     zipcode = models.CharField(max_length=200, null=False)
     date_added = models.DateTimeField(auto_now_add=True)
     
@@ -171,7 +190,16 @@ class ShippingAddress(models.Model):
     def __str__(self):
         return self.address
 
+
 class ImagesItem(models.Model):
+    """[summary]
+
+    Args:
+        models ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     item_images = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='image')
     image = models.FileField(upload_to='image/', default='image_default.jpg', blank=True, null=True)
     
@@ -181,7 +209,13 @@ class ImagesItem(models.Model):
     def __str__(self):
         return self.item_images.title
 
+
 class Rating(models.Model):
+    """[summary]
+
+    Args:
+        models ([type]): [description]
+    """
     item = models.ManyToManyField(Item, related_name='item')
     user = models.ManyToManyField(Profil, related_name='profile') 
     stars = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
